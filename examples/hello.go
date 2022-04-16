@@ -39,8 +39,11 @@ func testDB(db *nutsdb.DB) {
 	)
 
 	if err := db.Update(func(tx *nutsdb.Tx) error {
-		return tx.SAdd(bucket, key, value)
+		if err := tx.SAdd(bucket, key, value); err != nil {
+			return err
+		}
 
+		return tx.SAdd(bucket, key, []byte("bar2"))
 	}); err != nil {
 		log.Fatal(err)
 	}
