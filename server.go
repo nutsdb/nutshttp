@@ -37,12 +37,6 @@ func (s *NutsHTTPServer) initRouter() {
 	s.initListRouter()
 }
 
-func (s *NutsHTTPServer) initSetRouter() {
-	sr := s.r.Group("/set")
-
-	sr.GET("/:bucket/:key", s.ListSet)
-}
-
 func (s *NutsHTTPServer) initListRouter() {
 	sr := s.r.Group("/list")
 
