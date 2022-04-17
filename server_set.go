@@ -12,7 +12,7 @@ type BaseUri struct {
 func (s *NutsHTTPServer) SAdd(c *gin.Context) {
 
 	type AddSetRequest struct {
-		Value []string `form:"value" binding:"required"`
+		Value []string `json:"value" binding:"required"`
 	}
 
 	var (
@@ -21,24 +21,21 @@ func (s *NutsHTTPServer) SAdd(c *gin.Context) {
 		addSetRequest AddSetRequest
 	)
 
-	err = c.ShouldBindUri(&baseUri)
-	if err != nil {
+	if err = c.ShouldBindUri(&baseUri); err != nil {
 		WriteError(c, APIMessage{
 			Message: err.Error(),
 		})
 		return
 	}
 
-	err = c.ShouldBindJSON(&addSetRequest)
-	if err != nil {
+	if err = c.ShouldBindJSON(&addSetRequest); err != nil {
 		WriteError(c, APIMessage{
 			Message: err.Error(),
 		})
 		return
 	}
 
-	err = s.core.addSet(baseUri.Bucket, baseUri.Key, addSetRequest.Value...)
-	if err != nil {
+	if err = s.core.addSet(baseUri.Bucket, baseUri.Key, addSetRequest.Value...); err != nil {
 		WriteError(c, APIMessage{
 			Message: err.Error(),
 		})
@@ -60,16 +57,136 @@ func (s *NutsHTTPServer) SMembers(c *gin.Context) {
 		resp    listSetResp
 	)
 
-	err = c.ShouldBindUri(&baseUri)
-	if err != nil {
+	if err = c.ShouldBindUri(&baseUri); err != nil {
 		WriteError(c, APIMessage{
 			Message: err.Error(),
 		})
 		return
 	}
 
-	resp.Items, err = s.core.listSet(baseUri.Bucket, baseUri.Key)
-	if err != nil {
+	if resp.Items, err = s.core.listSet(baseUri.Bucket, baseUri.Key); err != nil {
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	WriteSucc(c, resp)
+}
+
+func (s *NutsHTTPServer) SAreMembers(c *gin.Context) {
+
+	type (
+		SAreMembersRequest struct {
+			Value []string `json:"value" binding:"required"`
+		}
+
+		SAreMembersResp struct {
+			IsExist bool `json:"is_exist"`
+		}
+	)
+
+	var (
+		ok               bool
+		err              error
+		baseUri          BaseUri
+		sAreMembersquest SAreMembersRequest
+	)
+
+	if err = c.ShouldBindUri(&baseUri); err != nil {
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	if err = c.ShouldBindJSON(&sAreMembersquest); err != nil {
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	if ok, err = s.core.sAreMembers(baseUri.Bucket, baseUri.Key, sAreMembersquest.Value...); err != nil {
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	WriteSucc(c, SAreMembersResp{
+		IsExist: ok,
+	})
+}
+
+func (s *NutsHTTPServer) SIsMember(c *gin.Context) {
+
+	type (
+		SIsMemberRequest struct {
+			Value string `json:"value" binding:"required"`
+		}
+
+		SIsMemberResp struct {
+			IsExist bool `json:"is_exist"`
+		}
+	)
+
+	var (
+		ok              bool
+		err             error
+		baseUri         BaseUri
+		sIsMembersquest SIsMemberRequest
+	)
+
+	if err = c.ShouldBindUri(&baseUri); err != nil {
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
+
+		return
+	}
+
+	if err = c.ShouldBindJSON(&sIsMembersquest); err != nil {
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
+
+		return
+	}
+
+	if ok, err = s.core.sIsMember(baseUri.Bucket, baseUri.Key, sIsMembersquest.Value); err != nil {
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
+
+		return
+	}
+
+	WriteSucc(c, SIsMemberResp{
+		IsExist: ok,
+	})
+}
+
+func (s *NutsHTTPServer) SCard(c *gin.Context) {
+
+	type ScardResp struct {
+		Num int `json:"num"`
+	}
+
+	var (
+		err     error
+		baseUri BaseUri
+		resp    ScardResp
+	)
+
+	if err = c.ShouldBindUri(&baseUri); err != nil {
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	if resp.Num, err = s.core.sCard(baseUri.Bucket, baseUri.Key); err != nil {
 		WriteError(c, APIMessage{
 			Message: err.Error(),
 		})
