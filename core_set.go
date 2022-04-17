@@ -4,7 +4,7 @@ import (
 	"github.com/xujiajun/nutsdb"
 )
 
-func (c *core) listSet(bucket string, setName string) ([][]byte, error) {
+func (c *core) listSet(bucket string, key string) ([][]byte, error) {
 
 	var (
 		data [][]byte
@@ -12,7 +12,7 @@ func (c *core) listSet(bucket string, setName string) ([][]byte, error) {
 	)
 
 	err = c.db.View(func(tx *nutsdb.Tx) error {
-		data, err = tx.SMembers(bucket, []byte(setName))
+		data, err = tx.SMembers(bucket, []byte(key))
 		return err
 	})
 

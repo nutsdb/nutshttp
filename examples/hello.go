@@ -9,8 +9,6 @@ import (
 )
 
 func main() {
-	// Open the database located in the /tmp/nutsdb directory.
-	// It will be created if it doesn't exist.
 	opt := nutsdb.DefaultOptions
 	opt.Dir = "/tmp/nutsdb"
 	db, err := nutsdb.Open(opt)
@@ -43,7 +41,15 @@ func testDB(db *nutsdb.DB) {
 			return err
 		}
 
-		return tx.SAdd(bucket, key, []byte("bar2"))
+		if err := tx.SAdd(bucket, key, []byte("bar2")); err != nil {
+			return err
+		}
+
+		_ = tx.RPush(bucket, []byte("key1"), []byte("value1"))
+		_ = tx.RPush(bucket, []byte("key1"), []byte("value2"))
+
+		return nil
+
 	}); err != nil {
 		log.Fatal(err)
 	}

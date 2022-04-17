@@ -3,23 +3,23 @@ package nutshttp
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"github.com/xujiajun/nutsdb"
 )
 
 type NutsHTTPServer struct {
-	// db *nutsdb.DB
 	core *core
-
-	r *mux.Router
+	r    *gin.Engine
 }
 
 func NewNutsHTTPServer(db *nutsdb.DB) *NutsHTTPServer {
 	c := &core{db}
 
+	r := gin.Default()
+
 	s := &NutsHTTPServer{
 		core: c,
-		r:    mux.NewRouter(),
+		r:    r,
 	}
 
 	s.initRouter()
@@ -32,7 +32,19 @@ func (s *NutsHTTPServer) Run(addr string) error {
 }
 
 func (s *NutsHTTPServer) initRouter() {
-	setRouter := s.r.PathPrefix("/set/").Subrouter()
+	s.initSetRouter()
 
-	setRouter.HandleFunc("/{bucket}/{setname}", s.ListSet)
+	s.initListRouter()
+}
+
+func (s *NutsHTTPServer) initSetRouter() {
+	sr := s.r.Group("/set")
+
+	sr.GET("/:bucket/:key", s.ListSet)
+}
+
+func (s *NutsHTTPServer) initListRouter() {
+	sr := s.r.Group("/list")
+
+	sr.GET("/:bucket/:key", s.LRange)
 }

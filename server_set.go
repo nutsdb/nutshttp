@@ -2,27 +2,25 @@ package nutshttp
 
 import (
 	"log"
-	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
-func (s *NutsHTTPServer) ListSet(w http.ResponseWriter, r *http.Request) {
+func (s *NutsHTTPServer) ListSet(c *gin.Context) {
 
-	vars := mux.Vars(r)
-	bucket := vars["bucket"]
-	key := vars["setname"]
+	bucket := c.Param("bucket")
+	key := c.Param("key")
 
 	items, err := s.core.listSet(bucket, key)
 	if err != nil {
-		WriteError(w, ErrInternalServerError)
+		WriteError(c, ErrInternalServerError)
 		return
 	}
 
-	WriteSucc(w, items)
+	WriteSucc(c, items)
 }
 
-func (s *NutsHTTPServer) SMembers(w http.ResponseWriter, r *http.Request) {
+func (s *NutsHTTPServer) SMembers(c *gin.Context) {
 	// NOTE(zy): to do
 
 	log.Println("hello world")
