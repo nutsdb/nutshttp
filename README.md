@@ -1,4 +1,4 @@
-# nutsdb-http
+# nutshttp
 
 A http server for nutsdb
 
