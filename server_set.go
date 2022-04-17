@@ -1,27 +1,80 @@
 package nutshttp
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 )
 
-func (s *NutsHTTPServer) ListSet(c *gin.Context) {
+type BaseUri struct {
+	Bucket string `uri:"bucket" binding:"required"`
+	Key    string `uri:"key" binding:"required"`
+}
 
-	bucket := c.Param("bucket")
-	key := c.Param("key")
+func (s *NutsHTTPServer) SAdd(c *gin.Context) {
 
-	items, err := s.core.listSet(bucket, key)
+	type AddSetRequest struct {
+		Value []string `form:"value" binding:"required"`
+	}
+
+	var (
+		err           error
+		baseUri       BaseUri
+		addSetRequest AddSetRequest
+	)
+
+	err = c.ShouldBindUri(&baseUri)
 	if err != nil {
-		WriteError(c, ErrInternalServerError)
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
 		return
 	}
 
-	WriteSucc(c, items)
+	err = c.ShouldBindJSON(&addSetRequest)
+	if err != nil {
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	err = s.core.addSet(baseUri.Bucket, baseUri.Key, addSetRequest.Value...)
+	if err != nil {
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	WriteSucc(c, struct{}{})
 }
 
 func (s *NutsHTTPServer) SMembers(c *gin.Context) {
-	// NOTE(zy): to do
 
-	log.Println("hello world")
+	type listSetResp struct {
+		Items []string `json:"items"`
+	}
+
+	var (
+		err     error
+		baseUri BaseUri
+		resp    listSetResp
+	)
+
+	err = c.ShouldBindUri(&baseUri)
+	if err != nil {
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	resp.Items, err = s.core.listSet(baseUri.Bucket, baseUri.Key)
+	if err != nil {
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	WriteSucc(c, resp)
 }
