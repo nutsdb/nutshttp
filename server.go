@@ -35,6 +35,8 @@ func (s *NutsHTTPServer) initRouter() {
 	s.initSetRouter()
 
 	s.initListRouter()
+
+	s.initStringRouter()
 }
 
 func (s *NutsHTTPServer) initListRouter() {
