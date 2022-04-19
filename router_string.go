@@ -3,11 +3,9 @@ package nutshttp
 func (s *NutsHTTPServer) initStringRouter() {
 	sr := s.r.Group("/string")
 
-	sr.GET("/sget/:bucket/:key", s.SGet)
+	sr.GET("/get/:bucket/:key", s.SGet)
 
-	sr.POST("sset/:bucket/:key", s.SUpdate)
+	sr.POST("update/:bucket/:key", s.SUpdate)
 
-	sr.POST("supdate/:bucket/:key", s.SUpdate)
-
-	sr.POST("sdelete/:bucket/:key", s.SDelete)
+	sr.POST("delete/:bucket/:key", s.SDelete)
 }

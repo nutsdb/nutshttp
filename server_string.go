@@ -2,6 +2,7 @@ package nutshttp
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/xujiajun/nutsdb"
 )
 
 func (s *NutsHTTPServer) SGet(c *gin.Context) {
@@ -19,6 +20,11 @@ func (s *NutsHTTPServer) SGet(c *gin.Context) {
 
 	value, err := s.core.SGet(baseUri.Bucket, baseUri.Key)
 	if err != nil {
+		// if key not exist, return the not-found err msg
+		if err == nutsdb.ErrNotFoundKey {
+			WriteError(c, ErrKeyNotFoundInBucket)
+			return
+		}
 		WriteError(c, ErrInternalServerError)
 		return
 	}
@@ -73,7 +79,18 @@ func (s *NutsHTTPServer) SDelete(c *gin.Context) {
 		return
 	}
 
-	err = s.core.SDelete(baseUri.Bucket, baseUri.Bucket)
+	_, err = s.core.SGet(baseUri.Bucket, baseUri.Key)
+	if err != nil {
+		// if key not exist, return the not-found err
+		if err == nutsdb.ErrNotFoundKey {
+			WriteError(c, ErrKeyNotFoundInBucket)
+			return
+		}
+		WriteError(c, ErrInternalServerError)
+		return
+	}
+
+	err = s.core.SDelete(baseUri.Bucket, baseUri.Key)
 
 	if err != nil {
 		WriteError(c, ErrInternalServerError)
