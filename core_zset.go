@@ -5,22 +5,6 @@ import (
 	"github.com/xujiajun/nutsdb/ds/zset"
 )
 
-/**
-TestSortedSet_Put
-TestSortedSet_GetByKey
-TestSortedSet_GetByRank
-TestSortedSet_GetByRankRange
-TestSortedSet_FindRank
-TestSortedSet_FindRevRank
-TestSortedSet_GetByScoreRange
-TestSortedSet_GetByScoreRange2
-TestSortedSet_PeekMax
-TestSortedSet_PeekMin
-TestSortedSet_PopMin
-TestSortedSet_PopMax
-TestSortedSet_Remove
-TestSortedSet_Size
-*/
 func (c *core) zPut(bucket string, key []byte, score float64, value []byte) error {
 	if err := c.db.Update(func(tx *nutsdb.Tx) error {
 		if err := tx.ZAdd(bucket, key, score, value); err != nil {
