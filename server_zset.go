@@ -5,11 +5,6 @@ import (
 	"github.com/xujiajun/nutsdb/ds/zset"
 )
 
-var (
-	ErrBadUri       = APIMessage{Code: 4101, Message: "wrong path specification"}
-	ErrBadJsonParam = APIMessage{Code: 4102, Message: "wrong json specification"}
-)
-
 type Node struct {
 	Key   string `json:"key"`
 	Value []byte `json:"value"`
@@ -299,12 +294,12 @@ func (s *NutsHTTPServer) ZRangeByScore(c *gin.Context) {
 	)
 
 	if err = c.ShouldBindUri(&baseUri); err != nil {
-		WriteError(c, ErrBadUri)
+		WriteError(c, APIMessage{Message: err.Error()})
 		return
 	}
 
 	if err = c.ShouldBindJSON(&p); err != nil {
-		WriteError(c, ErrBadJsonParam)
+		WriteError(c, APIMessage{Message: err.Error()})
 		return
 	}
 
