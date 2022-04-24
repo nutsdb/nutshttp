@@ -32,6 +32,9 @@ func (s *NutsHTTPServer) Run(addr string) error {
 }
 
 func (s *NutsHTTPServer) initRouter() {
+	if EnableAuth {
+		s.DefaultInitAuth()
+	}
 	s.initSetRouter()
 
 	s.initListRouter()

@@ -4,6 +4,8 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"log"
+	"strings"
 	"time"
 )
 
@@ -23,7 +25,7 @@ func defaultOptAndCheckFunc() Option {
 	return Option{
 		ExpireDuration: time.Hour * 4,
 		Issuer:         "nutsdb.nutsdb-http",
-		SigningMethod:  jwt.SigningMethodES512,
+		SigningMethod:  jwt.SigningMethodHS256,
 		checkFunc: func(s string) bool {
 			return true
 		},
@@ -31,15 +33,15 @@ func defaultOptAndCheckFunc() Option {
 }
 
 type TokenClaims struct {
-	Cert string `json:"cert"`
+	Cert []byte `json:"cert"`
 	jwt.StandardClaims
 }
 
-var secret = []byte("78")
+var secret = []byte("eeeeeettt")
 
 func GenerateToken(cert string) (string, error) {
 	claims := TokenClaims{
-		cert,
+		[]byte(cert),
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(option.ExpireDuration).Unix(),
 			Issuer:    option.Issuer,
@@ -70,11 +72,13 @@ func handler(c *gin.Context) {
 		panic(errors.New("invalid auth option"))
 	}
 	var cert string
-	err := c.ShouldBind(&cert)
-	if err != nil {
-		WriteError(c, ErrMissingParam)
-		return
-	}
+	//err := c.ShouldBind(&cert)
+	cert = c.Param("cert")
+	println("cert:", cert)
+	//if err != nil {
+	//	WriteError(c, ErrMissingParam)
+	//	return
+	//}
 	b := option.checkFunc(cert)
 	if b {
 		token, err := GenerateToken(cert)
@@ -86,4 +90,39 @@ func handler(c *gin.Context) {
 		return
 	}
 	WriteError(c, ErrRefuseIssueToken)
+}
+
+func (s *NutsHTTPServer) DefaultInitAuth() {
+	option = defaultOptAndCheckFunc()
+	sr := s.r.Group("/auth")
+	sr.GET("/:cert", handler)
+	s.r.Use(JWTAuthMiddleware())
+	log.Println("Auth init succeed")
+}
+
+const Bearer = "Bearer"
+
+func JWTAuthMiddleware() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		authHeader := c.Request.Header.Get("Authorization")
+		if len(authHeader) == 0 {
+			WriteError(c, ErrAuthInvalid)
+			c.Abort()
+			return
+		}
+		parts := strings.SplitN(authHeader, " ", 2)
+		if !(len(parts) == 2 && parts[0] == Bearer) {
+			WriteError(c, ErrAuthInvalid)
+			c.Abort()
+			return
+		}
+		mc, err := CheckToken(parts[1])
+		if err != nil {
+			WriteError(c, ErrAuthInvalid)
+			c.Abort()
+			return
+		}
+		c.Set("cert", mc.Cert)
+		c.Next()
+	}
 }

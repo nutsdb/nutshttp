@@ -16,7 +16,8 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
-
+	// Enable auth
+	nutshttp.EnableAuth = true
 	go func() {
 		if err := nutshttp.Enable(db); err != nil {
 			panic(err)
