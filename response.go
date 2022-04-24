@@ -17,6 +17,8 @@ var (
 	ErrBadRequest          = APIMessage{Code: 400, Message: "Bad Request"}
 	ErrNotFound            = APIMessage{404, "Not Found"}
 	ErrInternalServerError = APIMessage{500, "Internal Server Error"}
+	ErrMissingParam        = APIMessage{400, "Missing Param"}
+	ErrRefuseIssueToken    = APIMessage{400, "Server refused to issue token"}
 )
 
 type Response struct {
