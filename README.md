@@ -33,6 +33,7 @@ nutshttp.EnableAuth = true
 curl http://127.0.0.1:8080/auth/thisisacert
 ```
 `thisisacert` replace with your pwd or username
+
 3. Use Token:
 
 - Add token to HEADERS:

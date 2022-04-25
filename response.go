@@ -18,7 +18,7 @@ var (
 	ErrNotFound            = APIMessage{404, "Not Found"}
 	ErrInternalServerError = APIMessage{500, "Internal Server Error"}
 	ErrRefuseIssueToken    = APIMessage{400, "Server refused to issue token"}
-	ErrAuthInvalid         = APIMessage{400, "Auth invalid"}
+	ErrAuthInvalid         = APIMessage{403, "Auth invalid"}
 )
 
 type Response struct {

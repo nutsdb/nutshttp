@@ -2,10 +2,13 @@ package nutshttp
 
 import (
 	"errors"
+
 	"github.com/dgrijalva/jwt-go"
+
 	"github.com/gin-gonic/gin"
-	"log"
+
 	"strings"
+
 	"time"
 )
 
@@ -37,7 +40,7 @@ type TokenClaims struct {
 	jwt.StandardClaims
 }
 
-var secret = []byte("eeeeeettt")
+var secret = []byte("3YJM45xgpDkj")
 
 func GenerateToken(cert string) (string, error) {
 	claims := TokenClaims{
@@ -72,13 +75,8 @@ func handler(c *gin.Context) {
 		panic(errors.New("invalid auth option"))
 	}
 	var cert string
-	//err := c.ShouldBind(&cert)
 	cert = c.Param("cert")
 	println("cert:", cert)
-	//if err != nil {
-	//	WriteError(c, ErrMissingParam)
-	//	return
-	//}
 	b := option.checkFunc(cert)
 	if b {
 		token, err := GenerateToken(cert)
@@ -97,7 +95,10 @@ func (s *NutsHTTPServer) DefaultInitAuth() {
 	sr := s.r.Group("/auth")
 	sr.GET("/:cert", handler)
 	s.r.Use(JWTAuthMiddleware())
-	log.Println("Auth init succeed")
+}
+
+func SetSecret(s string) {
+	secret = []byte(s)
 }
 
 const Bearer = "Bearer"
