@@ -18,6 +18,11 @@ var (
 	ErrNotFound            = APIMessage{404, "Not Found"}
 	ErrInternalServerError = APIMessage{500, "Internal Server Error"}
 	ErrKeyNotFoundInBucket = APIMessage{40001, "Key Not Found In Bucket"}
+	ErrPrefixScan          = APIMessage{40002, "Prefix Scans Not Found"}
+	ErrPrefixSearchScan    = APIMessage{40003, "Prefix Search Scans Not Found"}
+	ErrRangeScan           = APIMessage{40004, "Range Scans Not Found"}
+	ErrBucketEmpty         = APIMessage{40005, "Bucket Empty"}
+	ErrUnknown             = APIMessage{40404, "UnKnown Err"}
 )
 
 type Response struct {
@@ -36,7 +41,7 @@ func WriteSucc(c *gin.Context, data interface{}) {
 }
 
 func WriteError(c *gin.Context, msg APIMessage) {
-	c.JSON(msg.Code, Response{
+	c.JSON(http.StatusOK, Response{
 		Code:  msg.Code,
 		Error: msg.Message,
 	})

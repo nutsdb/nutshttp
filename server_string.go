@@ -5,7 +5,7 @@ import (
 	"github.com/xujiajun/nutsdb"
 )
 
-func (s *NutsHTTPServer) SGet(c *gin.Context) {
+func (s *NutsHTTPServer) Get(c *gin.Context) {
 	var (
 		err     error
 		baseUri BaseUri
@@ -18,14 +18,14 @@ func (s *NutsHTTPServer) SGet(c *gin.Context) {
 		return
 	}
 
-	value, err := s.core.SGet(baseUri.Bucket, baseUri.Key)
+	value, err := s.core.Get(baseUri.Bucket, baseUri.Key)
 	if err != nil {
-		// if key not exist, return the not-found err msg
-		if err == nutsdb.ErrNotFoundKey {
+		switch err {
+		case nutsdb.ErrNotFoundKey:
 			WriteError(c, ErrKeyNotFoundInBucket)
-			return
+		default:
+			WriteError(c, ErrUnknown)
 		}
-		WriteError(c, ErrInternalServerError)
 		return
 	}
 
@@ -33,7 +33,7 @@ func (s *NutsHTTPServer) SGet(c *gin.Context) {
 
 }
 
-func (s *NutsHTTPServer) SUpdate(c *gin.Context) {
+func (s *NutsHTTPServer) Update(c *gin.Context) {
 	type UpdateStringRequest struct {
 		Value string `json:"value" binding:"required"`
 		Ttl   uint32 `json:"ttl"`
@@ -58,15 +58,20 @@ func (s *NutsHTTPServer) SUpdate(c *gin.Context) {
 		return
 	}
 
-	err = s.core.SUpdate(baseUri.Bucket, baseUri.Key, updateStringRequest.Value, updateStringRequest.Ttl)
+	err = s.core.Update(baseUri.Bucket, baseUri.Key, updateStringRequest.Value, updateStringRequest.Ttl)
 	if err != nil {
-		WriteError(c, ErrInternalServerError)
+		switch err {
+		case nutsdb.ErrNotFoundKey:
+			WriteError(c, ErrKeyNotFoundInBucket)
+		default:
+			WriteError(c, ErrUnknown)
+		}
 		return
 	}
 	WriteSucc(c, struct{}{})
 }
 
-func (s *NutsHTTPServer) SDelete(c *gin.Context) {
+func (s *NutsHTTPServer) Delete(c *gin.Context) {
 	var (
 		err     error
 		baseUri BaseUri
@@ -79,22 +84,140 @@ func (s *NutsHTTPServer) SDelete(c *gin.Context) {
 		return
 	}
 
-	_, err = s.core.SGet(baseUri.Bucket, baseUri.Key)
+	_, err = s.core.Get(baseUri.Bucket, baseUri.Key)
 	if err != nil {
-		// if key not exist, return the not-found err
-		if err == nutsdb.ErrNotFoundKey {
+		switch err {
+		case nutsdb.ErrNotFoundKey:
 			WriteError(c, ErrKeyNotFoundInBucket)
-			return
+		default:
+			WriteError(c, ErrUnknown)
 		}
-		WriteError(c, ErrInternalServerError)
 		return
 	}
 
-	err = s.core.SDelete(baseUri.Bucket, baseUri.Key)
+	err = s.core.Delete(baseUri.Bucket, baseUri.Key)
 
 	if err != nil {
 		WriteError(c, ErrInternalServerError)
 		return
 	}
 	WriteSucc(c, struct{}{})
+}
+
+func (s *NutsHTTPServer) Scan(c *gin.Context) {
+	const (
+		PrefixScan       = "prefixScan"
+		PrefixSearchScan = "prefixSearchScan"
+		RangeScan        = "rangeScan"
+		GetAll           = "getAll"
+	)
+
+	type ScanParam struct {
+		Bucket   string `uri:"bucket" binding:"required"`
+		ScanType string `uri:"scanType" binding:"required"`
+	}
+
+	var (
+		err       error
+		entries   nutsdb.Entries
+		scanParam ScanParam
+		bucket    string
+	)
+
+	if err = c.ShouldBindUri(&scanParam); err != nil {
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	switch scanParam.ScanType {
+	case PrefixScan:
+		type ScanRequest struct {
+			OffSet   int    `json:"offSet"  binding:"required"`
+			LimitNum int    `json:"limitNum"  binding:"required"`
+			Prefix   string `json:"prefix" binding:"required"`
+		}
+
+		var scanReq ScanRequest
+		if err = c.ShouldBindJSON(&scanReq); err != nil {
+			WriteError(c, APIMessage{
+				Message: err.Error(),
+			})
+			return
+		}
+		entries, err = s.core.PrefixScan(bucket, scanReq.Prefix, scanReq.OffSet, scanReq.LimitNum)
+		if err != nil {
+			switch err {
+			case nutsdb.ErrPrefixScan:
+				WriteError(c, ErrPrefixScan)
+			default:
+				WriteError(c, ErrUnknown)
+			}
+			return
+		}
+		WriteSucc(c, entries)
+	case PrefixSearchScan:
+		type ScanSearchReq struct {
+			OffSet   int    `json:"offSet"  binding:"required"`
+			LimitNum int    `json:"limitNum"  binding:"required"`
+			Prefix   string `json:"prefix" binding:"required"`
+			Reg      string `json:"reg" binding:"required"`
+		}
+		var scanSearchReq ScanSearchReq
+		if err = c.ShouldBindJSON(&scanSearchReq); err != nil {
+			WriteError(c, APIMessage{
+				Message: err.Error(),
+			})
+			return
+		}
+		entries, err = s.core.PrefixSearchScan(bucket, scanSearchReq.Prefix, scanSearchReq.Reg, scanSearchReq.OffSet, scanSearchReq.LimitNum)
+		if err != nil {
+			switch err {
+			case nutsdb.ErrPrefixSearchScan:
+				WriteError(c, ErrPrefixSearchScan)
+			default:
+				WriteError(c, ErrUnknown)
+			}
+			return
+		}
+		WriteSucc(c, entries)
+	case RangeScan:
+		type RangeScanReq struct {
+			Start string `json:"start" binding:"required"`
+			End   string `json:"end" binding:"required"`
+		}
+		var rangeScanReq RangeScanReq
+		if err = c.ShouldBindJSON(&rangeScanReq); err != nil {
+			WriteError(c, APIMessage{
+				Message: err.Error(),
+			})
+			return
+		}
+		entries, err = s.core.RangeScan(bucket, rangeScanReq.Start, rangeScanReq.End)
+		if err != nil {
+			switch err {
+			case nutsdb.ErrRangeScan:
+				WriteError(c, ErrRangeScan)
+			default:
+				WriteError(c, ErrUnknown)
+			}
+			return
+		}
+		WriteSucc(c, entries)
+	case GetAll:
+		entries, err = s.core.GetAll(bucket)
+		if err != nil {
+			switch err {
+			case nutsdb.ErrBucketEmpty:
+				WriteError(c, ErrBucketEmpty)
+			default:
+				WriteError(c, ErrUnknown)
+			}
+			return
+		}
+		WriteSucc(c, entries)
+	}
+
+	return
 }
