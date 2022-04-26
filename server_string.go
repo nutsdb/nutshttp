@@ -98,7 +98,12 @@ func (s *NutsHTTPServer) Delete(c *gin.Context) {
 	err = s.core.Delete(baseUri.Bucket, baseUri.Key)
 
 	if err != nil {
-		WriteError(c, ErrInternalServerError)
+		switch err {
+		case nutsdb.ErrKeyEmpty:
+			WriteError(c, ErrKeyNotFoundInBucket)
+		default:
+			WriteError(c, ErrUnknown)
+		}
 		return
 	}
 	WriteSucc(c, struct{}{})
@@ -121,7 +126,6 @@ func (s *NutsHTTPServer) Scan(c *gin.Context) {
 		err       error
 		entries   nutsdb.Entries
 		scanParam ScanParam
-		bucket    string
 	)
 
 	if err = c.ShouldBindUri(&scanParam); err != nil {
@@ -134,9 +138,9 @@ func (s *NutsHTTPServer) Scan(c *gin.Context) {
 	switch scanParam.ScanType {
 	case PrefixScan:
 		type ScanRequest struct {
-			OffSet   int    `json:"offSet"  binding:"required"`
-			LimitNum int    `json:"limitNum"  binding:"required"`
-			Prefix   string `json:"prefix" binding:"required"`
+			OffSet   *int    `json:"offSet"  binding:"required"`
+			LimitNum *int    `json:"limitNum"  binding:"required"`
+			Prefix   *string `json:"prefix" binding:"required"`
 		}
 
 		var scanReq ScanRequest
@@ -146,7 +150,7 @@ func (s *NutsHTTPServer) Scan(c *gin.Context) {
 			})
 			return
 		}
-		entries, err = s.core.PrefixScan(bucket, scanReq.Prefix, scanReq.OffSet, scanReq.LimitNum)
+		entries, err = s.core.PrefixScan(scanParam.Bucket, *scanReq.Prefix, *scanReq.OffSet, *scanReq.LimitNum)
 		if err != nil {
 			switch err {
 			case nutsdb.ErrPrefixScan:
@@ -156,13 +160,17 @@ func (s *NutsHTTPServer) Scan(c *gin.Context) {
 			}
 			return
 		}
-		WriteSucc(c, entries)
+		var res = map[string]string{}
+		for _, e := range entries {
+			res[string(e.Key)] = string(e.Value)
+		}
+		WriteSucc(c, res)
 	case PrefixSearchScan:
 		type ScanSearchReq struct {
-			OffSet   int    `json:"offSet"  binding:"required"`
-			LimitNum int    `json:"limitNum"  binding:"required"`
-			Prefix   string `json:"prefix" binding:"required"`
-			Reg      string `json:"reg" binding:"required"`
+			OffSet   *int    `json:"offSet"  binding:"required"`
+			LimitNum *int    `json:"limitNum"  binding:"required"`
+			Prefix   *string `json:"prefix" binding:"required"`
+			Reg      *string `json:"reg" binding:"required"`
 		}
 		var scanSearchReq ScanSearchReq
 		if err = c.ShouldBindJSON(&scanSearchReq); err != nil {
@@ -171,7 +179,7 @@ func (s *NutsHTTPServer) Scan(c *gin.Context) {
 			})
 			return
 		}
-		entries, err = s.core.PrefixSearchScan(bucket, scanSearchReq.Prefix, scanSearchReq.Reg, scanSearchReq.OffSet, scanSearchReq.LimitNum)
+		entries, err = s.core.PrefixSearchScan(scanParam.Bucket, *scanSearchReq.Prefix, *scanSearchReq.Reg, *scanSearchReq.OffSet, *scanSearchReq.LimitNum)
 		if err != nil {
 			switch err {
 			case nutsdb.ErrPrefixSearchScan:
@@ -181,11 +189,15 @@ func (s *NutsHTTPServer) Scan(c *gin.Context) {
 			}
 			return
 		}
-		WriteSucc(c, entries)
+		var res = map[string]string{}
+		for _, e := range entries {
+			res[string(e.Key)] = string(e.Value)
+		}
+		WriteSucc(c, res)
 	case RangeScan:
 		type RangeScanReq struct {
-			Start string `json:"start" binding:"required"`
-			End   string `json:"end" binding:"required"`
+			Start *string `json:"start" binding:"required"`
+			End   *string `json:"end" binding:"required"`
 		}
 		var rangeScanReq RangeScanReq
 		if err = c.ShouldBindJSON(&rangeScanReq); err != nil {
@@ -194,7 +206,7 @@ func (s *NutsHTTPServer) Scan(c *gin.Context) {
 			})
 			return
 		}
-		entries, err = s.core.RangeScan(bucket, rangeScanReq.Start, rangeScanReq.End)
+		entries, err = s.core.RangeScan(scanParam.Bucket, *rangeScanReq.Start, *rangeScanReq.End)
 		if err != nil {
 			switch err {
 			case nutsdb.ErrRangeScan:
@@ -204,9 +216,13 @@ func (s *NutsHTTPServer) Scan(c *gin.Context) {
 			}
 			return
 		}
-		WriteSucc(c, entries)
+		var res = map[string]string{}
+		for _, e := range entries {
+			res[string(e.Key)] = string(e.Value)
+		}
+		WriteSucc(c, res)
 	case GetAll:
-		entries, err = s.core.GetAll(bucket)
+		entries, err = s.core.GetAll(scanParam.Bucket)
 		if err != nil {
 			switch err {
 			case nutsdb.ErrBucketEmpty:
@@ -216,7 +232,11 @@ func (s *NutsHTTPServer) Scan(c *gin.Context) {
 			}
 			return
 		}
-		WriteSucc(c, entries)
+		var res = map[string]string{}
+		for _, e := range entries {
+			res[string(e.Key)] = string(e.Value)
+		}
+		WriteSucc(c, res)
 	}
 
 	return

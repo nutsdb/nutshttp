@@ -3,7 +3,7 @@ package nutshttp
 func (s *NutsHTTPServer) initStringRouter() {
 	sr := s.r.Group("/string")
 
-	sr.GET("/get/:bucket/:key", s.Get)
+	sr.GET("get/:bucket/:key", s.Get)
 
 	sr.POST("update/:bucket/:key", s.Update)
 
