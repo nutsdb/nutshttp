@@ -8,7 +8,7 @@ type PushRequest struct {
 	Value string `json:"value" binding:"required"`
 }
 
-func (s *NutsHTTPServer) Range(c *gin.Context) {
+func (s *NutsHTTPServer) LRange(c *gin.Context) {
 	var (
 		err     error
 		baseUri BaseUri
@@ -204,13 +204,13 @@ func (s *NutsHTTPServer) LPeek(c *gin.Context) {
 	WriteSucc(c, peek)
 }
 
-func (s *NutsHTTPServer) Lem(c *gin.Context) {
+func (s *NutsHTTPServer) LRem(c *gin.Context) {
 	var (
 		err     error
 		baseUri BaseUri
 	)
 
-	type LemReq struct {
+	type LRemReq struct {
 		Value *string `json:"value" binding:"required"`
 		Count *int    `json:"count" binding:"required"`
 	}
@@ -222,15 +222,15 @@ func (s *NutsHTTPServer) Lem(c *gin.Context) {
 		return
 	}
 
-	var lemReq LemReq
-	if err = c.ShouldBindJSON(&lemReq); err != nil {
+	var lremReq LRemReq
+	if err = c.ShouldBindJSON(&lremReq); err != nil {
 		WriteError(c, APIMessage{
 			Message: err.Error(),
 		})
 		return
 	}
 
-	num, err := s.core.Rem(baseUri.Bucket, baseUri.Key, *lemReq.Value, *lemReq.Count)
+	num, err := s.core.LRem(baseUri.Bucket, baseUri.Key, *lremReq.Value, *lremReq.Count)
 	if err != nil {
 		switch err {
 		default:
@@ -241,7 +241,7 @@ func (s *NutsHTTPServer) Lem(c *gin.Context) {
 	WriteSucc(c, num)
 }
 
-func (s *NutsHTTPServer) Set(c *gin.Context) {
+func (s *NutsHTTPServer) LSet(c *gin.Context) {
 	var (
 		err     error
 		baseUri BaseUri
@@ -268,7 +268,7 @@ func (s *NutsHTTPServer) Set(c *gin.Context) {
 		return
 	}
 
-	err = s.core.Set(baseUri.Bucket, baseUri.Key, *setReq.Value, *setReq.Index)
+	err = s.core.LSet(baseUri.Bucket, baseUri.Key, *setReq.Value, *setReq.Index)
 	if err != nil {
 		switch err {
 		default:
@@ -318,7 +318,7 @@ func (s *NutsHTTPServer) LTrim(c *gin.Context) {
 	WriteSucc(c, struct{}{})
 }
 
-func (s *NutsHTTPServer) Size(c *gin.Context) {
+func (s *NutsHTTPServer) LSize(c *gin.Context) {
 	var (
 		err     error
 		baseUri BaseUri

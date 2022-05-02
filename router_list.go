@@ -3,7 +3,7 @@ package nutshttp
 func (s *NutsHTTPServer) initListRouter() {
 	sr := s.r.Group("/list")
 
-	sr.GET("/range/:bucket/:key", s.Range)
+	sr.GET("/lrange/:bucket/:key", s.LRange)
 
 	sr.POST("/rpush/:bucket/:key", s.RPush)
 
@@ -17,12 +17,12 @@ func (s *NutsHTTPServer) initListRouter() {
 
 	sr.GET("/lpeek/:bucket/:key", s.LPeek)
 
-	sr.POST("/lem/:bucket/:key", s.Lem)
+	sr.POST("/lrem/:bucket/:key", s.LRem)
 
-	sr.POST("/set/:bucket/:key", s.Set)
+	sr.POST("/lset/:bucket/:key", s.LSet)
 
 	sr.POST("/ltrim/:bucket/:key", s.LTrim)
 
-	sr.GET("/size/:bucket/:key", s.Size)
+	sr.GET("/lsize/:bucket/:key", s.LSize)
 
 }

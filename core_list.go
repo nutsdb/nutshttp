@@ -79,7 +79,7 @@ func (c *core) LPeek(bucket, key string) (value string, err error) {
 	return value, err
 }
 
-func (c *core) Rem(bucket, key, value string, count int) (num int, err error) {
+func (c *core) LRem(bucket, key, value string, count int) (num int, err error) {
 	err = c.db.Update(func(tx *nutsdb.Tx) error {
 		num, err = tx.LRem(bucket, []byte(key), count, []byte(value))
 		return err
@@ -87,7 +87,7 @@ func (c *core) Rem(bucket, key, value string, count int) (num int, err error) {
 	return num, err
 }
 
-func (c *core) Set(bucket, key, value string, index int) (err error) {
+func (c *core) LSet(bucket, key, value string, index int) (err error) {
 	err = c.db.Update(func(tx *nutsdb.Tx) error {
 		err = tx.LSet(bucket, []byte(key), index, []byte(value))
 		return err
