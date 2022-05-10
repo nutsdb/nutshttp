@@ -38,10 +38,6 @@ func (s *NutsHTTPServer) initRouter() {
 	s.initSetRouter()
 
 	s.initListRouter()
-}
 
-func (s *NutsHTTPServer) initListRouter() {
-	sr := s.r.Group("/list")
-
-	sr.GET("/:bucket/:key", s.LRange)
+	s.initStringRouter()
 }
