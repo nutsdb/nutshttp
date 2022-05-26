@@ -2,14 +2,11 @@ package nutshttp
 
 import (
 	"errors"
-
-	"github.com/dgrijalva/jwt-go"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
-
-	"strings"
-
-	"time"
+	"github.com/golang-jwt/jwt"
 )
 
 type CheckFunc func(string) bool
@@ -40,7 +37,7 @@ type TokenClaims struct {
 	jwt.StandardClaims
 }
 
-var secret = []byte("3YJM45xgpDkj")
+var secret []byte
 
 func GenerateToken(cert string) (string, error) {
 	claims := TokenClaims{
