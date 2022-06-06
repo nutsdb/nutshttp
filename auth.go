@@ -73,7 +73,6 @@ func handler(c *gin.Context) {
 	}
 	var cert string
 	cert = c.Param("cert")
-	println("cert:", cert)
 	b := option.checkFunc(cert)
 	if b {
 		token, err := GenerateToken(cert)
