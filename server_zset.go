@@ -7,13 +7,13 @@ import (
 
 type Node struct {
 	Key   string `json:"key"`
-	Value []byte `json:"value"`
+	Value string `json:"value"`
 }
 
 func (s *NutsHTTPServer) ZAdd(c *gin.Context) {
 	type Params struct {
-		Score float64 `json:"score" binding:"required"`
-		Value string  `json:"value" binding:"required"`
+		Score *float64 `json:"score" binding:"required"`
+		Value string   `json:"value" binding:"required"`
 	}
 	var (
 		err     error
@@ -29,7 +29,7 @@ func (s *NutsHTTPServer) ZAdd(c *gin.Context) {
 		WriteError(c, APIMessage{Message: err.Error()})
 		return
 	}
-	if err = s.core.zPut(baseUri.Bucket, []byte(baseUri.Key), params.Score, []byte(params.Value)); err != nil {
+	if err = s.core.zPut(baseUri.Bucket, []byte(baseUri.Key), *params.Score, []byte(params.Value)); err != nil {
 		WriteError(c, APIMessage{Message: err.Error()})
 		return
 	}
@@ -91,7 +91,6 @@ func (s *NutsHTTPServer) ZCount(c *gin.Context) {
 		return
 	}
 	WriteSucc(c, Response{Count: count})
-
 }
 
 func (s *NutsHTTPServer) ZGetByKey(c *gin.Context) {
@@ -114,9 +113,9 @@ func (s *NutsHTTPServer) ZGetByKey(c *gin.Context) {
 		return
 	}
 
-	WriteSucc(c, Response{Node{Key: node.Key(), Value: node.Value}})
-
+	WriteSucc(c, Response{Node{Key: node.Key(), Value: string(node.Value)}})
 }
+
 func (s *NutsHTTPServer) ZMembers(c *gin.Context) {
 
 	type Response struct {
@@ -140,10 +139,11 @@ func (s *NutsHTTPServer) ZMembers(c *gin.Context) {
 		return
 	}
 	for _, node := range nodes {
-		res.Nodes = append(res.Nodes, Node{node.Key(), node.Value})
+		res.Nodes = append(res.Nodes, Node{node.Key(), string(node.Value)})
 	}
 	WriteSucc(c, res)
 }
+
 func (s *NutsHTTPServer) ZPeekMax(c *gin.Context) {
 	type Response struct {
 		Node Node `json:"node"`
@@ -164,7 +164,7 @@ func (s *NutsHTTPServer) ZPeekMax(c *gin.Context) {
 		return
 	}
 
-	WriteSucc(c, Response{Node{node.Key(), node.Value}})
+	WriteSucc(c, Response{Node{node.Key(), string(node.Value)}})
 
 }
 
@@ -188,7 +188,7 @@ func (s *NutsHTTPServer) ZPeekMin(c *gin.Context) {
 		return
 	}
 
-	WriteSucc(c, Response{Node{node.Key(), node.Value}})
+	WriteSucc(c, Response{Node{node.Key(), string(node.Value)}})
 }
 
 func (s *NutsHTTPServer) ZPopMax(c *gin.Context) {
@@ -211,8 +211,9 @@ func (s *NutsHTTPServer) ZPopMax(c *gin.Context) {
 		return
 	}
 
-	WriteSucc(c, Response{Node{node.Key(), node.Value}})
+	WriteSucc(c, Response{Node{node.Key(), string(node.Value)}})
 }
+
 func (s *NutsHTTPServer) ZPopMin(c *gin.Context) {
 	type Response struct {
 		Nodes Node `json:"nodes"`
@@ -233,7 +234,7 @@ func (s *NutsHTTPServer) ZPopMin(c *gin.Context) {
 		return
 	}
 
-	WriteSucc(c, Response{Node{node.Key(), node.Value}})
+	WriteSucc(c, Response{Node{node.Key(), string(node.Value)}})
 }
 
 func (s *NutsHTTPServer) ZRangeByRank(c *gin.Context) {
@@ -266,7 +267,7 @@ func (s *NutsHTTPServer) ZRangeByRank(c *gin.Context) {
 		return
 	}
 	for _, node := range nodes {
-		reps.Nodes = append(reps.Nodes, Node{node.Key(), node.Value})
+		reps.Nodes = append(reps.Nodes, Node{node.Key(), string(node.Value)})
 	}
 
 	WriteSucc(c, reps)
@@ -309,12 +310,12 @@ func (s *NutsHTTPServer) ZRangeByScore(c *gin.Context) {
 		return
 	}
 	for _, node := range nodes {
-		reps.Nodes = append(reps.Nodes, Node{node.Key(), node.Value})
+		reps.Nodes = append(reps.Nodes, Node{node.Key(), string(node.Value)})
 	}
 
 	WriteSucc(c, reps)
-
 }
+
 func (s *NutsHTTPServer) ZRank(c *gin.Context) {
 	type Response struct {
 		Rank int `json:"rank"`
@@ -335,8 +336,8 @@ func (s *NutsHTTPServer) ZRank(c *gin.Context) {
 		return
 	}
 	WriteSucc(c, Response{Rank: rank})
-
 }
+
 func (s *NutsHTTPServer) ZRevRank(c *gin.Context) {
 	type Response struct {
 		Rank int `json:"rank"`
@@ -358,6 +359,7 @@ func (s *NutsHTTPServer) ZRevRank(c *gin.Context) {
 	}
 	WriteSucc(c, Response{Rank: rank})
 }
+
 func (s *NutsHTTPServer) ZRem(c *gin.Context) {
 	var (
 		err     error
@@ -375,6 +377,7 @@ func (s *NutsHTTPServer) ZRem(c *gin.Context) {
 	}
 	WriteSucc(c, APIOK)
 }
+
 func (s *NutsHTTPServer) ZRemRangeByRank(c *gin.Context) {
 	type Params struct {
 		Start int `json:"start"`
@@ -401,6 +404,7 @@ func (s *NutsHTTPServer) ZRemRangeByRank(c *gin.Context) {
 	}
 	WriteSucc(c, APIOK)
 }
+
 func (s *NutsHTTPServer) ZScore(c *gin.Context) {
 	type Response struct {
 		Score float64 `json:"score"`

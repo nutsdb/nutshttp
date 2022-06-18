@@ -3,7 +3,7 @@ package nutshttp
 func (s *NutsHTTPServer) initZSetRouter() {
 	sr := s.r.Group("/zset")
 
-	sr.POST("/zadd/:bucket/:key", s.SAdd)
+	sr.POST("/zadd/:bucket/:key", s.ZAdd)
 
 	sr.GET("/zcard/:bucket/:key", s.ZCard)
 
@@ -31,7 +31,7 @@ func (s *NutsHTTPServer) initZSetRouter() {
 
 	sr.DELETE("/zrem/:bucket/:key", s.ZRem)
 
-	sr.GET("/zremrangebyrank/:bucket/:key", s.ZRemRangeByRank)
+	sr.DELETE("/zremrangebyrank/:bucket/:key", s.ZRemRangeByRank)
 
 	sr.GET("/zscore/:bucket/:key", s.ZScore)
 
