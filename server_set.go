@@ -132,10 +132,10 @@ func (s *NutsHTTPServer) SIsMember(c *gin.Context) {
 	)
 
 	var (
-		ok              bool
-		err             error
-		baseUri         BaseUri
-		sIsMembersquest SIsMemberRequest
+		ok                bool
+		err               error
+		baseUri           BaseUri
+		sIsMembersRequest SIsMemberRequest
 	)
 
 	if err = c.ShouldBindUri(&baseUri); err != nil {
@@ -146,7 +146,7 @@ func (s *NutsHTTPServer) SIsMember(c *gin.Context) {
 		return
 	}
 
-	if err = c.ShouldBindJSON(&sIsMembersquest); err != nil {
+	if err = c.ShouldBindJSON(&sIsMembersRequest); err != nil {
 		WriteError(c, APIMessage{
 			Message: err.Error(),
 		})
@@ -154,7 +154,7 @@ func (s *NutsHTTPServer) SIsMember(c *gin.Context) {
 		return
 	}
 
-	if ok, err = s.core.sIsMember(baseUri.Bucket, baseUri.Key, sIsMembersquest.Value); err != nil {
+	if ok, err = s.core.sIsMember(baseUri.Bucket, baseUri.Key, sIsMembersRequest.Value); err != nil {
 		WriteError(c, APIMessage{
 			Message: err.Error(),
 		})

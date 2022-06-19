@@ -63,7 +63,7 @@ func (c *core) zMembers(bucket string) (nodes []*zset.SortedSetNode, err error) 
 	}); err != nil {
 		return nil, err
 	}
-	nodes = make([]*zset.SortedSetNode, len(nodesMap))
+	nodes = make([]*zset.SortedSetNode, 0, len(nodesMap))
 	for _, node := range nodesMap {
 		nodes = append(nodes, node)
 	}
@@ -95,7 +95,7 @@ func (c *core) zPeekMin(bucket string) (node *zset.SortedSetNode, err error) {
 }
 
 func (c *core) zPopMax(bucket string) (node *zset.SortedSetNode, err error) {
-	if err = c.db.View(func(tx *nutsdb.Tx) error {
+	if err = c.db.Update(func(tx *nutsdb.Tx) error {
 		if node, err = tx.ZPopMax(bucket); err != nil {
 			return err
 		}
@@ -107,7 +107,7 @@ func (c *core) zPopMax(bucket string) (node *zset.SortedSetNode, err error) {
 }
 
 func (c *core) zPopMin(bucket string) (node *zset.SortedSetNode, err error) {
-	if err = c.db.View(func(tx *nutsdb.Tx) error {
+	if err = c.db.Update(func(tx *nutsdb.Tx) error {
 		if node, err = tx.ZPopMin(bucket); err != nil {
 			return err
 		}
