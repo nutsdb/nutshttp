@@ -14,9 +14,9 @@ type APIMessage struct {
 var (
 	APIOK = APIMessage{Code: 200, Message: "OK"}
 
-	ErrBadRequest          = APIMessage{Code: 400, Message: "Bad Request"}
-	ErrNotFound            = APIMessage{404, "Not Found"}
 	ErrInternalServerError = APIMessage{500, "Internal Server Error"}
+	ErrRefuseIssueToken    = APIMessage{40000, "Server refused to issue token"}
+	ErrAuthInvalid         = APIMessage{40003, "Auth invalid"}
 	ErrKeyNotFoundInBucket = APIMessage{40001, "Key Not Found In Bucket"}
 	ErrPrefixScan          = APIMessage{40002, "Prefix Scans Not Found"}
 	ErrPrefixSearchScan    = APIMessage{40003, "Prefix Search Scans Not Found"}

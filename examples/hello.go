@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-
 	"nutshttp"
 
 	"github.com/xujiajun/nutsdb"
@@ -16,7 +15,9 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
-
+	// Enable auth
+	nutshttp.EnableAuth = true
+	nutshttp.SetSecret("TbI7O6yEdEYa")
 	go func() {
 		if err := nutshttp.Enable(db); err != nil {
 			panic(err)
