@@ -15,6 +15,7 @@ var (
 	APIOK = APIMessage{Code: 200, Message: "OK"}
 
 	ErrBadRequest          = APIMessage{Code: 400, Message: "Bad Request"}
+	AuthFail               = APIMessage{401, "Auth Fail"}
 	ErrNotFound            = APIMessage{404, "Not Found"}
 	ErrInternalServerError = APIMessage{500, "Internal Server Error"}
 	ErrKeyNotFoundInBucket = APIMessage{40001, "Key Not Found In Bucket"}

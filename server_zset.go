@@ -57,11 +57,11 @@ func (s *NutsHTTPServer) ZCard(c *gin.Context) {
 
 func (s *NutsHTTPServer) ZCount(c *gin.Context) {
 	type Params struct {
-		Start        float64 `json:"start" binding:"required"`
-		End          float64 `json:"end" binding:"required"`
-		Limit        int     `json:"limit,omitempty"`
-		ExcludeStart bool    `json:"exclude_start,omitempty"`
-		ExcludeEnd   bool    `json:"exclude_end,omitempty"`
+		Start        float64 `json:"start" binding:"required" form:"start"`
+		End          float64 `json:"end" binding:"required" form:"end"`
+		Limit        int     `json:"limit,omitempty" form:"limit"`
+		ExcludeStart bool    `json:"exclude_start,omitempty" form:"exclude_start"`
+		ExcludeEnd   bool    `json:"exclude_end,omitempty" form:"exclude_end"`
 	}
 
 	type Response struct {
@@ -80,7 +80,7 @@ func (s *NutsHTTPServer) ZCount(c *gin.Context) {
 		return
 	}
 
-	if err = c.ShouldBindJSON(&p); err != nil {
+	if err = c.ShouldBindQuery(&p); err != nil {
 		WriteError(c, APIMessage{Message: err.Error()})
 		return
 	}
@@ -242,8 +242,8 @@ func (s *NutsHTTPServer) ZRangeByRank(c *gin.Context) {
 		Nodes []Node `json:"nodes"`
 	}
 	type Params struct {
-		Start int `json:"start"`
-		End   int `json:"end"`
+		Start int `json:"start" form:"start"`
+		End   int `json:"end" form:"end"`
 	}
 	var (
 		err     error
@@ -257,7 +257,7 @@ func (s *NutsHTTPServer) ZRangeByRank(c *gin.Context) {
 		WriteError(c, APIMessage{Message: err.Error()})
 		return
 	}
-	if err = c.ShouldBindJSON(&params); err != nil {
+	if err = c.ShouldBindQuery(&params); err != nil {
 		WriteError(c, APIMessage{Message: err.Error()})
 		return
 	}
@@ -275,11 +275,11 @@ func (s *NutsHTTPServer) ZRangeByRank(c *gin.Context) {
 
 func (s *NutsHTTPServer) ZRangeByScore(c *gin.Context) {
 	type Params struct {
-		Start        float64 `json:"start" binding:"required"`
-		End          float64 `json:"end" binding:"required"`
-		Limit        int     `json:"limit,omitempty"`
-		ExcludeStart bool    `json:"exclude_start,omitempty"`
-		ExcludeEnd   bool    `json:"exclude_end,omitempty"`
+		Start        float64 `json:"start" binding:"required" form:"start"`
+		End          float64 `json:"end" binding:"required" form:"end"`
+		Limit        int     `json:"limit,omitempty" form:"limit"`
+		ExcludeStart bool    `json:"exclude_start,omitempty" form:"exclude_start"`
+		ExcludeEnd   bool    `json:"exclude_end,omitempty" form:"exclude_end"`
 	}
 
 	type Response struct {
@@ -299,7 +299,7 @@ func (s *NutsHTTPServer) ZRangeByScore(c *gin.Context) {
 		return
 	}
 
-	if err = c.ShouldBindJSON(&p); err != nil {
+	if err = c.ShouldBindQuery(&p); err != nil {
 		WriteError(c, APIMessage{Message: err.Error()})
 		return
 	}
@@ -380,8 +380,8 @@ func (s *NutsHTTPServer) ZRem(c *gin.Context) {
 
 func (s *NutsHTTPServer) ZRemRangeByRank(c *gin.Context) {
 	type Params struct {
-		Start int `json:"start"`
-		End   int `json:"end"`
+		Start int `json:"start" form:"start"`
+		End   int `json:"end" form:"end"`
 	}
 	var (
 		err     error
@@ -394,7 +394,7 @@ func (s *NutsHTTPServer) ZRemRangeByRank(c *gin.Context) {
 		return
 	}
 
-	if err = c.ShouldBindJSON(&params); err != nil {
+	if err = c.ShouldBindQuery(&params); err != nil {
 		WriteError(c, APIMessage{Message: err.Error()})
 		return
 	}

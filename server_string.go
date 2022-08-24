@@ -138,13 +138,13 @@ func (s *NutsHTTPServer) Scan(c *gin.Context) {
 	switch scanParam.ScanType {
 	case PrefixScan:
 		type ScanRequest struct {
-			OffSet   *int    `json:"offSet"  binding:"required"`
-			LimitNum *int    `json:"limitNum"  binding:"required"`
-			Prefix   *string `json:"prefix" binding:"required"`
+			OffSet   *int    `form:"offSet"  binding:"required"`
+			LimitNum *int    `form:"limitNum"  binding:"required"`
+			Prefix   *string `form:"prefix" binding:"required"`
 		}
 
 		var scanReq ScanRequest
-		if err = c.ShouldBindJSON(&scanReq); err != nil {
+		if err = c.ShouldBindQuery(&scanReq); err != nil {
 			WriteError(c, APIMessage{
 				Message: err.Error(),
 			})
@@ -167,13 +167,13 @@ func (s *NutsHTTPServer) Scan(c *gin.Context) {
 		WriteSucc(c, res)
 	case PrefixSearchScan:
 		type ScanSearchReq struct {
-			OffSet   *int    `json:"offSet"  binding:"required"`
-			LimitNum *int    `json:"limitNum"  binding:"required"`
-			Prefix   *string `json:"prefix" binding:"required"`
-			Reg      *string `json:"reg" binding:"required"`
+			OffSet   *int    `form:"offSet"  binding:"required"`
+			LimitNum *int    `form:"limitNum"  binding:"required"`
+			Prefix   *string `form:"prefix" binding:"required"`
+			Reg      *string `form:"reg" binding:"required"`
 		}
 		var scanSearchReq ScanSearchReq
-		if err = c.ShouldBindJSON(&scanSearchReq); err != nil {
+		if err = c.ShouldBindQuery(&scanSearchReq); err != nil {
 			WriteError(c, APIMessage{
 				Message: err.Error(),
 			})
@@ -196,11 +196,11 @@ func (s *NutsHTTPServer) Scan(c *gin.Context) {
 		WriteSucc(c, res)
 	case RangeScan:
 		type RangeScanReq struct {
-			Start *string `json:"start" binding:"required"`
-			End   *string `json:"end" binding:"required"`
+			Start *string `form:"start" binding:"required"`
+			End   *string `form:"end" binding:"required"`
 		}
 		var rangeScanReq RangeScanReq
-		if err = c.ShouldBindJSON(&rangeScanReq); err != nil {
+		if err = c.ShouldBindQuery(&rangeScanReq); err != nil {
 			WriteError(c, APIMessage{
 				Message: err.Error(),
 			})

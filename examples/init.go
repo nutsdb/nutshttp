@@ -10,16 +10,16 @@ import (
 )
 
 type initValueType struct {
-	Score	float64	`yaml:"score"`
-	Str		string	`yaml:"str"`
-	Base64	string	`yaml:"base64"`
+	Score  float64 `yaml:"score"`
+	Str    string  `yaml:"str"`
+	Base64 string  `yaml:"base64"`
 }
 
 type initDataType struct {
-	Kv map[string]map[string]initValueType			`yaml:"kv"`
-	List map[string]map[string][]initValueType		`yaml:"list"`
-	Set map[string]map[string][]initValueType		`yaml:"set"`
-	ZSet map[string]map[string][]initValueType		`yaml:"zset"`
+	Kv   map[string]map[string]initValueType   `yaml:"kv"`
+	List map[string]map[string][]initValueType `yaml:"list"`
+	Set  map[string]map[string][]initValueType `yaml:"set"`
+	ZSet map[string]map[string][]initValueType `yaml:"zset"`
 }
 
 func initData(db *nutsdb.DB) {
@@ -135,15 +135,15 @@ func initSortedSetData(db *nutsdb.DB, yamlData *initDataType) {
 		timestamp := float64(time.Now().Unix())
 		// multi value
 		for i := 0; i < 200; i++ {
-			_ = tx.ZAdd("sorted-set-bucket", []byte("key"), timestamp + float64(i), []byte(fmt.Sprintf("value-%d", i)))
+			_ = tx.ZAdd("sorted-set-bucket", []byte("key"), timestamp+float64(i), []byte(fmt.Sprintf("value-%d", i)))
 		}
 		// multi key
 		for i := 0; i < 200; i++ {
-			_ = tx.ZAdd("sorted-set-bucket", []byte(fmt.Sprintf("key-%d", i)), timestamp + float64(i), []byte("value"))
+			_ = tx.ZAdd("sorted-set-bucket", []byte(fmt.Sprintf("key-%d", i)), timestamp+float64(i), []byte("value"))
 		}
 		// multi bucket
 		for i := 0; i < 200; i++ {
-			_ = tx.ZAdd(fmt.Sprintf("sorted-set-bucket-%d", i), []byte("key"), timestamp + float64(i), []byte("value"))
+			_ = tx.ZAdd(fmt.Sprintf("sorted-set-bucket-%d", i), []byte("key"), timestamp+float64(i), []byte("value"))
 		}
 		return nil
 	})

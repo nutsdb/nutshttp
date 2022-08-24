@@ -1,6 +1,7 @@
 package nutshttp
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,8 +16,8 @@ func (s *NutsHTTPServer) LRange(c *gin.Context) {
 	)
 
 	type RangeReq struct {
-		Start *int `json:"start" binding:"required"`
-		End   *int `json:"end" binding:"required"`
+		Start *int `form:"start" binding:"required"`
+		End   *int `form:"end" binding:"required"`
 	}
 
 	var rangeReq RangeReq
@@ -28,12 +29,14 @@ func (s *NutsHTTPServer) LRange(c *gin.Context) {
 		return
 	}
 
-	if err = c.ShouldBindJSON(&rangeReq); err != nil {
+	if err = c.ShouldBindQuery(&rangeReq); err != nil {
 		WriteError(c, APIMessage{
 			Message: err.Error(),
 		})
 		return
 	}
+
+	fmt.Println(*rangeReq.Start, " ", *rangeReq.End)
 
 	items, err := s.core.LRange(baseUri.Bucket, baseUri.Key, *rangeReq.Start, *rangeReq.End)
 	if err != nil {
