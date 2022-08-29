@@ -2,3 +2,7 @@ users:
   admin: admin
   user1: user1
 port: 8080
+JWT:
+  Secret: nutsdb
+  Issuer: nuts-http
+  Expire: 2880

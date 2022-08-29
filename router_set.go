@@ -1,7 +1,7 @@
 package nutshttp
 
 func (s *NutsHTTPServer) initSetRouter() {
-	sr := s.r.Group("/set")
+	sr := s.r.Group("/set").Use(JWT())
 
 	sr.POST("/sadd/:bucket/:key", s.SAdd)
 

@@ -1,7 +1,7 @@
 package nutshttp
 
 func (s *NutsHTTPServer) initZSetRouter() {
-	sr := s.r.Group("/zset")
+	sr := s.r.Group("/zset").Use(JWT())
 
 	sr.POST("/zadd/:bucket/:key", s.ZAdd)
 

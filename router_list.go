@@ -1,7 +1,7 @@
 package nutshttp
 
 func (s *NutsHTTPServer) initListRouter() {
-	sr := s.r.Group("/list")
+	sr := s.r.Group("/list").Use(JWT())
 
 	sr.GET("/lrange/:bucket/:key", s.LRange)
 

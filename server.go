@@ -3,6 +3,7 @@ package nutshttp
 import (
 	"github.com/spf13/viper"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/xujiajun/nutsdb"
@@ -38,10 +39,19 @@ func (s *NutsHTTPServer) InitConfig() error {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.SetDefault("port", "8080")
+
 	err := viper.ReadInConfig()
 	if err != nil {
 		return err
 	}
+
+	err = viper.UnmarshalKey("JWT", &jwtSetting)
+
+	jwtSetting.Expire *= time.Minute
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -59,4 +69,5 @@ func (s *NutsHTTPServer) initRouter() {
 	s.initZSetRouter()
 
 	s.initLoginRouter()
+
 }
