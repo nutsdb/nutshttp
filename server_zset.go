@@ -303,7 +303,6 @@ func (s *NutsHTTPServer) ZRangeByScore(c *gin.Context) {
 		WriteError(c, APIMessage{Message: err.Error()})
 		return
 	}
-
 	if nodes, err = s.core.zRangeByScore(baseUri.Bucket, p.Start, p.End, &zset.GetByScoreRangeOptions{
 		Limit: p.Limit, ExcludeStart: p.ExcludeStart, ExcludeEnd: p.ExcludeEnd}); err != nil {
 		WriteError(c, APIMessage{4000, err.Error()})

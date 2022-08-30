@@ -60,6 +60,9 @@ func (s *NutsHTTPServer) Run(addr string) error {
 }
 
 func (s *NutsHTTPServer) initRouter() {
+
+	s.r.Use(Cors())
+
 	s.initSetRouter()
 
 	s.initListRouter()
@@ -69,5 +72,7 @@ func (s *NutsHTTPServer) initRouter() {
 	s.initZSetRouter()
 
 	s.initLoginRouter()
+
+	s.initCommonRouter()
 
 }
