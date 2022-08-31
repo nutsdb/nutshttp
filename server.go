@@ -1,6 +1,7 @@
 package nutshttp
 
 import (
+	"github.com/spf13/viper"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,7 @@ type NutsHTTPServer struct {
 	r    *gin.Engine
 }
 
-func NewNutsHTTPServer(db *nutsdb.DB) *NutsHTTPServer {
+func NewNutsHTTPServer(db *nutsdb.DB) (*NutsHTTPServer, error) {
 	c := &core{db}
 
 	r := gin.Default()
@@ -22,23 +23,47 @@ func NewNutsHTTPServer(db *nutsdb.DB) *NutsHTTPServer {
 		r:    r,
 	}
 
+	err := s.InitConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	s.initMiddleware()
+
 	s.initRouter()
 
-	return s
+	return s, nil
+}
+
+func (s *NutsHTTPServer) InitConfig() error {
+	viper.SetConfigType("yaml")
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
+	viper.SetDefault("port", "8080")
+	err := viper.ReadInConfig()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *NutsHTTPServer) Run(addr string) error {
 	return http.ListenAndServe(addr, s.r)
 }
 
+func (s *NutsHTTPServer) initMiddleware() {
+	s.initCorsMiddleware()
+	s.initAuthMiddleware()
+}
+
 func (s *NutsHTTPServer) initRouter() {
 	s.initSetRouter()
 
 	s.initListRouter()
-}
 
-func (s *NutsHTTPServer) initListRouter() {
-	sr := s.r.Group("/list")
+	s.initStringRouter()
 
-	sr.GET("/:bucket/:key", s.LRange)
+	s.initZSetRouter()
+
+	s.initLoginRouter()
 }

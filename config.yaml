@@ -1,0 +1,4 @@
+users:
+  admin: admin
+  user1: user1
+port: 8080
