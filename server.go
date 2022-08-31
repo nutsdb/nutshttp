@@ -28,6 +28,8 @@ func NewNutsHTTPServer(db *nutsdb.DB) (*NutsHTTPServer, error) {
 		return nil, err
 	}
 
+	s.initMiddleware()
+
 	s.initRouter()
 
 	return s, nil
@@ -47,6 +49,11 @@ func (s *NutsHTTPServer) InitConfig() error {
 
 func (s *NutsHTTPServer) Run(addr string) error {
 	return http.ListenAndServe(addr, s.r)
+}
+
+func (s *NutsHTTPServer) initMiddleware() {
+	s.initCorsMiddleware()
+	s.initAuthMiddleware()
 }
 
 func (s *NutsHTTPServer) initRouter() {
