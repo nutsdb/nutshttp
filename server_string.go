@@ -200,12 +200,14 @@ func (s *NutsHTTPServer) Scan(c *gin.Context) {
 			End   *string `form:"end" binding:"required"`
 		}
 		var rangeScanReq RangeScanReq
+
 		if err = c.ShouldBindQuery(&rangeScanReq); err != nil {
 			WriteError(c, APIMessage{
 				Message: err.Error(),
 			})
 			return
 		}
+
 		entries, err = s.core.RangeScan(scanParam.Bucket, *rangeScanReq.Start, *rangeScanReq.End)
 		if err != nil {
 			switch err {

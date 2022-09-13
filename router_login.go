@@ -27,7 +27,12 @@ func (s *NutsHTTPServer) initLoginRouter() {
 		if password, ok := users[u.UserName]; !ok || password != u.Password {
 			WriteError(c, AuthFail)
 		} else {
-			WriteSucc(c, "Success")
+			//Verification successful, write to JWT
+			token, err := GenerateToken(u.UserName)
+			if err != nil {
+				WriteError(c, AuthFail)
+			}
+			WriteSucc(c, token)
 		}
 
 	})

@@ -1,7 +1,7 @@
 package nutshttp
 
 func (s *NutsHTTPServer) initStringRouter() {
-	sr := s.r.Group("/string")
+	sr := s.r.Group("/string").Use(JWT())
 
 	sr.GET("get/:bucket/:key", s.Get)
 

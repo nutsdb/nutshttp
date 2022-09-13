@@ -1,7 +1,6 @@
 package nutshttp
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,8 +34,6 @@ func (s *NutsHTTPServer) LRange(c *gin.Context) {
 		})
 		return
 	}
-
-	fmt.Println(*rangeReq.Start, " ", *rangeReq.End)
 
 	items, err := s.core.LRange(baseUri.Bucket, baseUri.Key, *rangeReq.Start, *rangeReq.End)
 	if err != nil {
