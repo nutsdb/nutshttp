@@ -71,7 +71,7 @@ func (s *NutsHTTPServer) SMembers(c *gin.Context) {
 		return
 	}
 
-	WriteSucc(c, resp)
+	WriteSucc(c, resp.Items)
 }
 
 func (s *NutsHTTPServer) SAreMembers(c *gin.Context) {
