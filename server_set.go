@@ -2,6 +2,7 @@ package nutshttp
 
 import (
 	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 type BaseUri struct {
@@ -51,13 +52,24 @@ func (s *NutsHTTPServer) SMembers(c *gin.Context) {
 		Items []string `json:"items"`
 	}
 
+	type Param struct {
+		KeyWord string `form:"keyword"`
+	}
+
 	var (
 		err     error
 		baseUri BaseUri
 		resp    listSetResp
+		param   Param
 	)
 
 	if err = c.ShouldBindUri(&baseUri); err != nil {
+		WriteError(c, APIMessage{
+			Message: err.Error(),
+		})
+		return
+	}
+	if err = c.ShouldBindQuery(&param); err != nil {
 		WriteError(c, APIMessage{
 			Message: err.Error(),
 		})
@@ -69,6 +81,16 @@ func (s *NutsHTTPServer) SMembers(c *gin.Context) {
 			Message: err.Error(),
 		})
 		return
+	}
+	//filter
+	if param.KeyWord != "" {
+		temp := make([]string, 0)
+		for i := range resp.Items {
+			if strings.Index(resp.Items[i], param.KeyWord) != -1 {
+				temp = append(temp, resp.Items[i])
+			}
+		}
+		resp.Items = temp
 	}
 
 	WriteSucc(c, resp.Items)
