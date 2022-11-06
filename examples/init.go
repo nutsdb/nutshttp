@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/xujiajun/nutsdb"
 	"gopkg.in/yaml.v2"
+	"math/rand"
 	"os"
-	"time"
 )
 
 type initValueType struct {
@@ -132,18 +132,18 @@ func initSortedSetData(db *nutsdb.DB, yamlData *initDataType) {
 				}
 			}
 		}
-		timestamp := float64(time.Now().Unix())
+		base := float64(rand.Intn(500))
 		// multi value
 		for i := 0; i < 200; i++ {
-			_ = tx.ZAdd("sorted-set-bucket", []byte("key"), timestamp+float64(i), []byte(fmt.Sprintf("value-%d", i)))
+			_ = tx.ZAdd("sorted-set-bucket", []byte("key"), base+float64(i), []byte(fmt.Sprintf("value-%d", i)))
 		}
 		// multi key
 		for i := 0; i < 200; i++ {
-			_ = tx.ZAdd("sorted-set-bucket", []byte(fmt.Sprintf("key-%d", i)), timestamp+float64(i), []byte("value"))
+			_ = tx.ZAdd("sorted-set-bucket", []byte(fmt.Sprintf("key-%d", i)), base+float64(i), []byte("value"))
 		}
 		// multi bucket
 		for i := 0; i < 200; i++ {
-			_ = tx.ZAdd(fmt.Sprintf("sorted-set-bucket-%d", i), []byte("key"), timestamp+float64(i), []byte("value"))
+			_ = tx.ZAdd(fmt.Sprintf("sorted-set-bucket-%d", i), []byte("key"), base+float64(i), []byte("value"))
 		}
 		return nil
 	})
