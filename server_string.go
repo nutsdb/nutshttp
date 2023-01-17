@@ -71,6 +71,46 @@ func (s *NutsHTTPServer) Update(c *gin.Context) {
 	WriteSucc(c, struct{}{})
 }
 
+func (s *NutsHTTPServer) MulDelete(context *gin.Context) {
+	type MulDeleteRequest struct {
+		Keys []string `json:"keys" binding:"required"`
+	}
+	var (
+		err              error
+		mulDeleteRequest MulDeleteRequest
+	)
+	//get bucket from uri
+	param := context.Param("bucket")
+	if param == "" {
+		WriteError(context, ErrBucketEmpty)
+		return
+	}
+	bucket := param
+	if err = context.ShouldBindJSON(&mulDeleteRequest); err != nil {
+		WriteError(context, APIMessage{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	for i := range mulDeleteRequest.Keys {
+		err = s.core.Delete(bucket, mulDeleteRequest.Keys[i])
+		//stop delete when error
+		if err != nil {
+			switch err {
+			case nutsdb.ErrKeyEmpty:
+				WriteError(context, ErrKeyNotFoundInBucket)
+			default:
+				WriteError(context, ErrUnknown)
+			}
+			return
+		}
+	}
+
+	WriteSucc(context, struct{}{})
+
+}
+
 func (s *NutsHTTPServer) Delete(c *gin.Context) {
 	var (
 		err     error
