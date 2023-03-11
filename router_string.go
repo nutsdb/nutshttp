@@ -7,7 +7,9 @@ func (s *NutsHTTPServer) initStringRouter() {
 
 	sr.POST("update/:bucket/:key", s.Update)
 
-	sr.POST("delete/:bucket/:key", s.Delete)
+	sr.DELETE("delete/:bucket/:key", s.Delete)
+
+	sr.DELETE("muldelete/:bucket", s.MulDelete)
 
 	sr.GET("scan/:bucket/:scanType", s.Scan)
 }
